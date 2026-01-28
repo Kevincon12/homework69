@@ -1,4 +1,5 @@
 import {createAsyncThunk, createSlice, type PayloadAction} from "@reduxjs/toolkit";
+import axios from "axios";
 
 export interface Show {
     id: number;
@@ -21,15 +22,28 @@ const initialState: ShowState = {
 
 export const fetchShows = createAsyncThunk<Show[], string>(
     'shows/fetchShows',
-    async (show) => {
-        return [];
+        async (show) => {
+        const response = await axios.get(`https://api.tvmaze.com/search/shows?q=${show}`);
+        return response.data.map((item) => ({
+            id: item.show.id,
+            name: item.show.name,
+            image: item.show.image?.medium || null,
+            summary: item.show.summary || ""
+        }));
     }
 );
 
-export const fetchShowsById = createAsyncThunk<Show[], number>(
+export const fetchShowsById = createAsyncThunk<Show, number>(
     'shows/fetchShowsById',
     async (id) => {
-        return [];
+        const response = await axios.get(`https://api.tvmaze.com/shows/${id}`);
+        const show = response.data;
+        return {
+            id: show.id,
+            name: show.name,
+            image: show.image?.medium || null,
+            summary: show.summary || ""
+        };
     }
 );
 
